@@ -1,0 +1,22 @@
+-- Step 2
+INSERT INTO products_new (
+  product_id, model, year, product_type,base_msrp,
+  production_start_date, production_end_date
+) VALUES 
+( 13, 'Nimbus 5000', 2017, 'scooter', 500.00,
+  '2017-03-03', '2023-03-03'),
+( 14, 'Nimbus 6000', 2017, 'scooter', 600.00,
+  '2017-04-03', '2023-04-03'),
+( 15, 'Nimbus 7000', 2017, 'scooter', 700.00,
+  '2017-05-03', '2023-05-03');
+
+-- Step 3
+INSERT INTO products_new (
+  product_id, model, year, product_type,base_msrp,
+  production_start_date, production_end_date
+)
+SELECT * FROM products; 
+
+-- Step 4
+SELECT * FROM products_new;
+

@@ -1,0 +1,112 @@
+-- # Using JSON 
+SELECT row_to_json(c) FROM customers c limit 1;
+
+SELECT row_to_json(c, TRUE) FROM customers c limit 1;
+
+-- ## Accessing Data from a JSON or JSONB Field
+SELECT
+  '{
+    "a": 1,    "b": 2,    "c": 3
+  }'::JSON -> 'b' AS data;
+
+SELECT
+  '{
+    "a": 1,
+    "b": [{"d": 4}, {"d": 6}, {"d": 4}],
+    "c": 3
+  }'::JSON #> ARRAY['b', '1', 'd'] AS data;
+
+SELECT * 
+FROM customer_sales 
+WHERE customer_json @> '{"customer_id":20}'::JSONB;
+
+SELECT JSONB_PRETTY(customer_json) 
+FROM customer_sales 
+WHERE customer_json @> '{"customer_id":20}'::JSONB;
+
+SELECT
+  JSONB_OBJECT_KEYS(customer_json) AS keys,
+  customer_json -> JSONB_OBJECT_KEYS(customer_json) 
+FROM customer_sales
+WHERE customer_json @> '{"customer_id":20}'::JSONB;
+
+-- ## Leveraging JSON Path
+SELECT jsonb_path_exists(customer_json, '$.sales[0]')
+FROM customer_sales
+LIMIT 3;
+
+SELECT
+  jsonb_path_exists(
+    customer_json, 
+    '$.sales[*].sales_amount ? (@ > 400)'
+  )
+FROM customer_sales
+LIMIT 3;
+
+SELECT 
+  jsonb_path_query(customer_json, 
+    '$.sales[0].sales_amount')
+FROM customer_sales
+LIMIT 3;
+
+SELECT 
+  jsonb_path_query('{"test":[1, 2, 3]}', '$.test[*]');
+
+SELECT
+  jsonb_path_query_array(
+    customer_json, 
+    '$.sales[*].sales_amount ? (@ > 400)'
+  )
+FROM customer_sales
+LIMIT 3;
+
+-- ## Creating and Modifying Data in a JSONB Field
+select 
+  jsonb_insert('{"a":1,"b":"foo"}', ARRAY['c'], '2');
+
+select 
+  jsonb_insert(
+'{"a":1,"b":"foo", "c":[1, 2, 3, 4]}', 
+    ARRAY['c', '1'], '10');
+
+SELECT '{"a": 1, "b": 2}'::JSONB - 'b';
+
+-- # Using Array
+SELECT 
+  ARRAY['Lemon', 'Bat Limited Edition'] 
+    AS purchased_products;
+
+SELECT   
+  product_type, 
+  ARRAY_AGG(DISTINCT model) AS models 
+FROM products 
+GROUP BY 1;
+
+SELECT 
+  product_type, 
+  ARRAY_AGG(model ORDER BY year) AS models 
+FROM products 
+GROUP BY 1;
+
+SELECT UNNEST(ARRAY[123, 456, 789]) AS example_ids;
+
+SELECT STRING_TO_ARRAY('hello world', ' ');
+
+SELECT 
+  ARRAY_TO_STRING(
+    ARRAY['Lemon', 'Bat Limited Edition'], ', '
+  ) AS example_purchased_products;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

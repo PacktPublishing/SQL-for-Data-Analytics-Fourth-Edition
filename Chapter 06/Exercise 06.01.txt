@@ -1,0 +1,30 @@
+-- Step 2
+CREATE TABLE products_2025 AS ( 
+  SELECT * FROM products 
+  WHERE year=2025
+);
+
+-- Step 3
+UPDATE Products_2025 
+SET base_msrp = base_msrp*1.10 
+WHERE model=’Model Chi’ 
+AND year=2025;
+
+-- Step 4
+SELECT model, year, base_msrp 
+FROM products_2025;
+
+-- Step 5
+DELETE FROM products_2025
+WHERE model = 'Lemon Zester';
+
+-- Step 6
+SELECT model, year, base_msrp 
+FROM products_2025;
+
+-- Step 7
+DROP TABLE products_2025;
+
+-- Step 8
+SELECT * FROM products_2025; 
+

@@ -1,0 +1,27 @@
+-- Step 2
+SELECT * FROM customers LIMIT 3;
+
+-- Step 3
+SELECT first_name, last_name, date_added
+FROM customers
+ORDER BY date_added DESC
+LIMIT 3;
+
+-- Step 4
+SELECT first_name, last_name, date_added
+FROM customers
+WHERE date_added IS NULL
+LIMIT 3;
+
+-- Step 5
+SELECT DISTINCT State
+FROM customers;
+
+-- Step 6
+SELECT first_name, last_name, state, date_added
+FROM customers
+WHERE state in ('CA', 'FL')
+AND date_added >= '01/01/2025'
+LIMIT 3;
+
+

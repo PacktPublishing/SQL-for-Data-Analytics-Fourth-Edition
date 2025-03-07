@@ -1,0 +1,20 @@
+-- # Index Scanning
+-- ## The B-Tree Index
+CREATE INDEX <index name> 
+ON <table name>(table column);
+
+CREATE INDEX <index name> 
+ON <table name>(table column) WHERE [condition];
+
+CREATE INDEX <index name> ON <table name> 
+USING TYPE(table column)
+
+CREATE INDEX ix_customers ON customers 
+USING BTREE(customer_id);
+
+-- ## The Hash Index
+CREATE INDEX <index name> ON <table name> 
+USING HASH(table column)
+
+CREATE INDEX ix_gender ON customers 
+USING HASH(gender);

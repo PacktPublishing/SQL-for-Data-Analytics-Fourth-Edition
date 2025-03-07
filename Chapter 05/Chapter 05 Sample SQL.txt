@@ -1,0 +1,114 @@
+-- # SELECT Expressions
+-- ## SELECT … FROM
+SELECT * FROM <table_name>;
+
+SELECT product_id, model, base_msrp FROM products;
+
+SELECT 1 FROM products;
+
+SELECT model, base_msrp * 0.9 FROM products;
+
+-- ## Expression Alias
+SELECT model, base_msrp * 0.9 AS Discounted_Price
+FROM products;
+
+SELECT 
+  Model Product_Name,
+  0.9 Discount, 
+  base_msrp * 0.9 Discounted_Price
+FROM products;
+
+-- ## The DISTINCT and DISTINCT ON Functions
+SELECT DISTINCT model FROM products;
+
+SELECT DISTINCT year, product_type FROM products;
+
+-- ## The LIMIT Clause
+SELECT * FROM products LIMIT 5;
+
+-- ## The ORDER BY Clause
+SELECT model, production_start_date 
+FROM products 
+ORDER BY production_start_date
+LIMIT 5;
+
+SELECT model FROM products 
+ORDER BY production_start_date ASC;
+
+SELECT model FROM products 
+ORDER BY production_start_date DESC;
+
+SELECT product_id, model FROM products 
+ORDER BY product_id;
+
+SELECT product_id, model FROM products 
+ORDER BY 1;
+
+SELECT * FROM products 
+ORDER BY year DESC, base_msrp ASC;
+
+SELECT * FROM products 
+ORDER BY 3 DESC, 5 ASC;
+
+-- # Filtering Query Result
+SELECT model FROM products 
+WHERE year=2017;
+
+-- ## The AND/OR and NOT Clause
+SELECT model, year, base_msrp 
+FROM products 
+WHERE year=2017
+AND base_msrp<=1000;
+
+SELECT model, year, base_msrp 
+FROM products 
+WHERE year=2017
+OR base_msrp<=1000;
+
+SELECT * 
+FROM products 
+WHERE year > 2019
+AND year < 2021
+OR product_type='scooter';
+
+SELECT * 
+FROM products 
+WHERE (year>2019 AND year<2021) 
+OR product_type='scooter';
+
+SELECT model, year, base_msrp 
+FROM products 
+WHERE NOT (year=2017 OR base_msrp<=1000);
+
+SELECT model, year 
+FROM products 
+WHERE year = 2017
+OR year = 2019 
+OR year = 2022;
+
+SELECT model, year 
+FROM products 
+WHERE year IN (2017, 2019, 2022);
+
+SELECT model, year 
+FROM products 
+WHERE year NOT IN (2017, 2019, 2022);
+
+-- ## The IS NULL/IS NOT NULL Clause
+SELECT model, production_end_date
+FROM products 
+WHERE production_end_date IS NULL;
+
+SELECT *
+FROM products
+WHERE production_end_date IS NOT NULL;
+
+
+
+
+
+
+
+
+
+

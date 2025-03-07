@@ -1,0 +1,17 @@
+-- Step 2
+\d products
+
+-- Step 3
+CREATE TABLE products_new ( 
+  product_id            bigint,
+  model                 text,
+  year                  bigint,
+  product_type          text, 
+  base_msrp             numeric,
+  production_start_date timestamp,
+  production_end_date   timestamp
+);
+
+-- Step 4
+CREATE TABLE products_new_2 as 
+SELECT * FROM products;
