@@ -13,7 +13,7 @@ print(cnxn_string)
 engine = create_engine(
     cnxn_string.format( 
         username="postgres", 
-        pswd="your_password",
+        pswd="my_password",
         host="localhost", 
         port=5432, 
         database="sqlda"

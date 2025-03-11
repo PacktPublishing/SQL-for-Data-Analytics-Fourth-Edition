@@ -3,7 +3,7 @@ import psycopg2
 conn = psycopg2.connect(
         host="localhost", 
         user="postgres", 
-        password="<your superuser password>", 
+        password="my_password", 
         dbname="sqlda", 
         port=5432
 ) 

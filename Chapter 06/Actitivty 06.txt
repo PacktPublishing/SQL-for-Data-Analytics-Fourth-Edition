@@ -1,0 +1,42 @@
+-- Duplicate the products table into a copy called products_new table.
+CREATE TABLE products_new AS 
+SELECT * FROM products;
+
+-- Create the function to simulate the data cleansing process
+CREATE FUNCTION update_products() 
+RETURNS TIMESTAMP AS $serving$
+BEGIN
+  -- a.	Add a column to the products_new table called last_update_date, 
+  --    and populate the column with current date. 
+  ALTER TABLE products_new 
+  ADD COLUMN last_update_date DATE;
+
+  UPDATE products_new
+  SET last_update_date = CURRENT_DATE;
+
+  -- b.	Remove products that have been discontinued (having a non NULL 
+  --    production_end_date) and have a production_start_date earlier 
+  --    than 2020
+  DELETE FROM products_new
+  WHERE EXTRACT(YEAR FROM production_start_date) < 2020
+  AND production_end_date IS NOT NULL;
+
+  -- c.	If the production_end_date column is NULL, replace with the 
+  --    date 2999-01-01. 
+  UPDATE products_new
+  SET production_end_date = '2999-01-01'
+  WHERE production_end_date IS NULL;
+
+  -- 
+  RETURN CURRENT_TIMESTAMP;
+END; $serving$
+LANGUAGE PLPGSQL;
+
+-- Run the function and check the value in the products_new table
+SELECT update_products();
+SELECT * FROM products_new;
+
+-- Drop the function and table to maintain database cleanness
+DROP FUNCTION update_products;
+DROP TABLE products_new;
+

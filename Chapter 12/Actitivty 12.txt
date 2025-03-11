@@ -1,0 +1,40 @@
+
+-- Get the average daily sales for each weekday and 
+-- weekend days and compare them side by side
+WITH 
+  daily_sales as (
+    SELECT 
+      sales_transaction_date::date, 
+      SUM(sales_amount) sales_amount
+    FROM sales
+    GROUP BY sales_transaction_date::date
+  )
+SELECT
+  EXTRACT(dow FROM sales_transaction_date),
+  AVG(sales_amount) sales_amount
+FROM daily_sales 
+GROUP BY 1;
+
+-- Difference in purchasing of limited edition 
+-- products (the percentage of these products 
+-- in average daily sales) between different 
+-- days.
+WITH 
+  daily_sales as (
+    SELECT 
+      p.model,
+      s.sales_transaction_date::date, 
+      SUM(s.sales_amount) sales_amount
+    FROM sales s
+    JOIN products p
+      ON s.product_id = p.product_id
+    WHERE p.model ILIKE '%limited edition%'
+    GROUP BY 
+      p.model, 
+      sales_transaction_date::date
+  )
+SELECT
+  EXTRACT(dow FROM sales_transaction_date),
+  AVG(sales_amount) sales_amount
+FROM daily_sales 
+GROUP BY 1;

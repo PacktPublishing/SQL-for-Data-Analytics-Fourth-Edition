@@ -1,0 +1,40 @@
+
+-- Calculate the rolling 30-day average for the 
+-- daily total sales amount for the year 2024. 
+-- Calculate which decile each date would be in 
+-- compared to other days based on their daily 
+-- 30-day rolling sales amount.
+-- Hint: In order to calculate the rolling 30-day 
+-- average for the daily total sales amount for 
+-- the year 2024, you will need to calculate the 
+-- total sales amount by day for all of the days 
+-- in the year 2024 plus all the 30 days in 2023 
+-- that is before 2024.
+WITH 
+  daily_sales as (
+    SELECT 
+      sales_transaction_date::date, 
+      SUM(sales_amount) sales_amount
+    FROM sales
+    WHERE sales_transaction_date::date BETWEEN '20231201' AND '20241231'
+    GROUP BY sales_transaction_date::date
+  ),
+  moving_avg AS (
+    SELECT
+      sales_transaction_date,
+      sales_amount,
+      AVG(sales_amount) OVER w AS moving_avg
+    FROM daily_sales 
+    WINDOW w AS (
+      ORDER BY sales_transaction_date 
+      ROWS BETWEEN 30 PRECEDING AND 1 PRECEDING
+    )
+  )
+SELECT
+  sales_transaction_date,
+  sales_amount,
+  moving_avg,
+  NTILE(10) OVER (ORDER BY moving_avg DESC) AS decile
+FROM moving_avg m
+WHERE moving_avg IS NOT NULL
+ORDER BY decile;

@@ -1,0 +1,33 @@
+-- The business users have been complaining that 
+-- while they are able to see the sales data and 
+-- see customer_id in the sales table, they have 
+-- to pull data from the customers with ID filter 
+-- to see the customer name. Can you run a query 
+-- to return all columns of the customers table 
+-- and the sales table combined, based on the 
+-- criteria that the records from two tables 
+-- belong to the same customer.
+SELECT s.*, c.*
+FROM sales s
+INNER JOIN customers c ON c.customer_id=s.customer_id;
+
+-- Now the user can see each customer's name with 
+-- the sales figure. they want to see the columns 
+-- from the customers table, products table, and 
+-- sales table using one query. You should return 
+-- all columns of the three tables.
+SELECT s.*, c.*, p.*
+FROM sales s
+INNER JOIN customers c ON c.customer_id=s.customer_id
+INNER JOIN products p ON p.product_id=s.product_id;
+
+-- It is known that internet sales does not have 
+-- associated dealerships. To get a comprehensive 
+-- view of sales, the business users want to see 
+-- all columns from the sales table, together with 
+-- all the columns from the dealerships table, if 
+-- the sales belong to a certain dealership.
+SELECT s.*, d.*
+FROM sales s
+LEFT JOIN dealerships d 
+ON d.dealership_id=s.dealership_id;

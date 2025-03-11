@@ -1,34 +1,45 @@
 -- Step 2
-SELECT
-  model, 
-  'Release Year: ' || year::char(4) ReleaseYear
-FROM products
-WHERE model LIKE '%Limited Edition%';
+CREATE TEMP TABLE customer_points AS (
+  SELECT 
+    customer_id,  
+    point(longitude, latitude) AS lng_lat_point
+  FROM customers
+  WHERE longitude IS NOT NULL
+  AND latitude IS NOT NULL
+);
 
 -- Step 3
-SELECT
-  model, 
-  REPLACE(model, 'Model', 'Super Model'),
-  LENGTH(
-    REPLACE(model, 'Model', 'Super Model'))
-FROM products
-WHERE model LIKE '%Model%';
+CREATE TEMP TABLE dealership_points AS (
+  SELECT
+    dealership_id,
+    point(longitude, latitude) AS lng_lat_point
+  FROM dealerships
+);
 
 -- Step 4
-SELECT model FROM products
-WHERE model LIKE 'Model%';
+CREATE TEMP TABLE customer_dealership_distance 
+AS (
+  SELECT
+    customer_id,
+    dealership_id,
+    c.lng_lat_point <@> d.lng_lat_point AS dist
+  FROM customer_points c
+  CROSS JOIN dealership_points d
+);
 
-SELECT model FROM products
-WHERE LEFT(model, 5) = 'Model';
+-- Step 5
+CREATE TEMP TABLE closest_dealerships AS (
+  SELECT DISTINCT ON (customer_id)
+    customer_id,
+    dealership_id,
+    dist
+  FROM customer_dealership_distance
+  ORDER BY customer_id, dist
+);
 
-SELECT model FROM products
-WHERE SUBSTRING(model, 1, 5) = 'Model';
-
-SELECT model FROM products
-WHERE SUBSTR(model, 1, 5) = 'Model';
-
-SELECT model FROM products
-WHERE POSITION('Model' IN model) = 1;
-
-SELECT model FROM products
-WHERE STRPOS(model, 'Model') = 1;
+-- Step 6
+SELECT
+  AVG(dist) AS avg_dist,
+  PERCENTILE_DISC(0.5) 
+    WITHIN GROUP (ORDER BY dist) AS median_dist
+FROM closest_dealerships;

@@ -18,11 +18,6 @@ SELECT
   base_msrp * 0.9 Discounted_Price
 FROM products;
 
--- ## The DISTINCT and DISTINCT ON Functions
-SELECT DISTINCT model FROM products;
-
-SELECT DISTINCT year, product_type FROM products;
-
 -- ## The LIMIT Clause
 SELECT * FROM products LIMIT 5;
 
@@ -49,6 +44,24 @@ ORDER BY year DESC, base_msrp ASC;
 
 SELECT * FROM products 
 ORDER BY 3 DESC, 5 ASC;
+
+-- ## The DISTINCT and DISTINCT ON Functions
+SELECT DISTINCT model FROM products;
+
+SELECT DISTINCT year, product_type FROM products;
+
+SELECT DISTINCT ON (distinct_column)
+distinct_column,
+column_1,
+column_2,
+…
+FROM table
+ORDER BY order_column;
+
+SELECT DISTINCT ON (dealership_id) 
+  dealership_id, first_name, last_name
+FROM salespeople
+ORDER BY dealership_id , hire_date;
 
 -- # Filtering Query Result
 SELECT model FROM products 
