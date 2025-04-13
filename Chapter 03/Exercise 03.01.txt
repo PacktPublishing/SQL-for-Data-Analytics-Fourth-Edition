@@ -1,0 +1,7 @@
+-- Step 2
+COPY 
+(SELECT * FROM customers) 
+TO 'c:\Users\Public\customer_details.csv' 
+WITH CSV HEADER DELIMITER ',';
+
+

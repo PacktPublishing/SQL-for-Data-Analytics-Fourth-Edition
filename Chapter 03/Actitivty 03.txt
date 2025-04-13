@@ -1,0 +1,36 @@
+
+-- Save the data in the salespeople table using COPY
+COPY salespeople
+TO 'c:\Users\Public\salespeople.csv' 
+WITH CSV HEADER DELIMITER ',';
+
+-- Now, open this CSV file with your favorite text editor
+-- Keep the first 10 rows and delete the rest of salespeople
+-- Change the names of the salespeople to hash code such as #$%&*
+-- Save the file
+
+-- Create the salespeople_sample table to receive data
+CREATE TABLE salespeople_sample (
+  salesperson_id   INTEGER,
+  dealership_id    INTEGER,
+  title            TEXT,
+  first_name       TEXT,
+  last_name        TEXT,
+  suffix           TEXT,
+  username         TEXT,
+  gender           TEXT,
+  hire_date        TIMESTAMP,
+  termination_date TIMESTAMP
+);
+
+-- Load the data in the new CSV file into a new table
+COPY salespeople_sample 
+FROM 'c:\Users\Public\salespeople.csv' 
+CSV HEADER;
+
+-- Confirm the change to names have been applied
+SELECT * FROM salespeople_sample;
+
+-- After you finish all these tasks, please drop both 
+-- tables to save database storage.
+DROP TABLE salespeople_sample;

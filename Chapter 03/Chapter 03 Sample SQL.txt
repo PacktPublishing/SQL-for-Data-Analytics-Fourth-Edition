@@ -1,0 +1,43 @@
+-- # Exporting Data from PostgreSQL Database
+-- ## The COPY Command
+COPY (
+  SELECT * FROM products LIMIT 5
+) 
+TO STDOUT 
+WITH CSV HEADER;
+
+COPY (
+  SELECT * FROM products LIMIT 5
+) 
+TO 'c:\Users\Public\my_file.csv' 
+WITH CSV HEADER;
+
+-- ## \COPY in psql
+\COPY (SELECT * FROM products LIMIT 5) TO 'c:\Users\Public\my_file_local.csv' WITH CSV HEADER; 
+
+-- ## onfiguring COPY and \COPY
+COPY { table_name | ( query ) }
+    TO { 'filename' | STDOUT }
+    [ [ WITH ] ( option [, ...] ) ]
+
+\COPY products TO 'c:\Users\Public\my_file.csv' WITH CSV HEADER DELIMITER '|' NULL '' QUOTE '"'
+
+-- # Importing Data into PostgreSQL Database
+-- ## Using COPY and \COPY to Bulk Upload Data to Your Database
+CREATE TABLE products_csv (
+  product_id            bigint,
+  model                 text,
+  year                  bigint,
+  product_type          text, 
+  base_msrp             numeric,
+  production_start_date timestamp,
+  production_end_date   timestamp
+);
+
+\COPY products_csv FROM 'c:\Users\Public\my_file.csv' CSV HEADER DELIMITER '|'
+
+
+
+
+
+

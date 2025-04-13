@@ -1,0 +1,33 @@
+
+-- Write a query that pulls all salespeople 
+-- that were hired in 2024 and 2025 but have 
+-- not been terminated, i.e., the hire_date 
+-- must be later than 2024-01-01, and 
+-- termination_date is null, ordered by hire 
+-- date, latest first.
+SELECT * 
+FROM salespeople 
+WHERE hire_date >= '2024-01-01' 
+AND termination_date IS NULL 
+ORDER BY hire_date DESC; 
+
+-- Write a query that pulls all first names, 
+-- last names, and emails for ZoomZoom 
+-- customers in New York City in the state 
+-- of New York. They should be ordered 
+-- alphabetically, with the last name 
+-- followed by the first name.
+SELECT first_name, last_name, email
+FROM customers 
+WHERE city='New York City' AND state='NY'
+ORDER BY last_name, first_name;
+
+-- Write a query that returns all customers 
+-- with a phone number ordered by the date 
+-- the customer was added to the database.
+SELECT * 
+FROM customers 
+WHERE phone IS NOT NULL 
+ORDER BY date_added;
+
+

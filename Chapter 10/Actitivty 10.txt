@@ -1,0 +1,97 @@
+
+--------------------------------------------------------
+--
+-- Query plans without index
+--
+--------------------------------------------------------
+-- Use the EXPLAIN command to return the query plan to select all 
+-- available records within the sales table which were ordered by 
+-- customer_id 1.
+EXPLAIN SELECT * FROM sales WHERE customer_id = 1;
+
+-- QUERY PLAN returned:
+--------------------------------------------------------
+ Seq Scan on sales  (cost=0.00..841.39 rows=1 width=49)
+   Filter: (customer_id = 1)
+(2 rows)
+
+
+-- Use the EXPLAIN command to return the query plan to select all 
+-- available records within the sales table which were ordered by 
+-- customer_id < 100.
+EXPLAIN SELECT * FROM sales WHERE customer_id < 100;
+
+-- QUERY PLAN returned:
+---------------------------------------------------------
+ Seq Scan on sales  (cost=0.00..841.39 rows=77 width=49)
+   Filter: (customer_id < 100)
+(2 rows)
+
+
+--------------------------------------------------------
+--
+-- Query plans with B-tree index
+--
+--------------------------------------------------------
+-- Create a B-tree index based on the customer_id column.
+CREATE INDEX ix_cid ON sales(customer_id);
+
+-- Rerun the customer_id = 1 query. 
+-- How long does the query take to plan and execute?
+EXPLAIN SELECT * FROM sales WHERE customer_id = 1;
+
+-- QUERY PLAN returned:
+---------------------------------------------------------------------
+ Index Scan using ix_cid on sales  (cost=0.29..8.31 rows=1 width=49)
+   Index Cond: (customer_id = 1)
+(2 rows)
+
+-- Rerun the customer_id < 100 query. 
+-- How long does the query take to plan and execute?
+EXPLAIN SELECT * FROM sales WHERE customer_id > 1000;
+
+-- QUERY PLAN returned:
+----------------------------------------------------------------------
+ Bitmap Heap Scan on sales  (cost=4.90..198.61 rows=79 width=49)
+   Recheck Cond: (customer_id < 100)
+   ->  Bitmap Index Scan on ix_cid  (cost=0.00..4.88 rows=79 width=0)
+         Index Cond: (customer_id < 100)
+(4 rows)
+
+
+--------------------------------------------------------
+--
+-- Query plans with hash index
+--
+--------------------------------------------------------
+-- Create a hash index on the customer_id column.
+DROP INDEX ix_cid;
+CREATE INDEX ix_cid ON sales USING HASH(customer_id);
+
+-- Rerun the customer_id = 1 query. 
+-- How long does the query take to plan and execute?
+EXPLAIN SELECT * FROM sales WHERE customer_id = 1;
+
+-- QUERY PLAN returned:
+---------------------------------------------------------------------
+ Index Scan using ix_cid on sales  (cost=0.00..8.02 rows=1 width=49)
+   Index Cond: (customer_id = 1)
+(2 rows)
+
+-- Rerun the customer_id < 100 query. 
+-- How long does the query take to plan and execute?
+EXPLAIN SELECT * FROM sales WHERE customer_id < 100;
+
+-- QUERY PLAN returned:
+---------------------------------------------------------
+ Seq Scan on sales  (cost=0.00..841.39 rows=77 width=49)
+   Filter: (customer_id < 100)
+(2 rows)
+
+-- Note that hash index only works for equal conditions. 
+-- PostgreSQL will not use it for range condition queries (<100)
+
+
+-- Clean up the index
+DROP INDEX ix_cid;
+

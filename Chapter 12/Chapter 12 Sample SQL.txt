@@ -1,0 +1,72 @@
+-- # Date and Time 
+-- ## The DATE type
+SHOW DateStyle;
+
+SELECT '1/14/2025'::DATE;
+
+SELECT '2025-01-14'::DATE;
+
+SELECT '14/01/2025'::DATE;
+
+SET DateStyle='GERMAN, DMY';
+
+SELECT 
+  NOW() AT TIME ZONE 'EST' as Eastern, 
+  CURRENT_TIMESTAMP AT TIME ZONE 'PST' as Pacific;
+
+SELECT NOW();
+
+-- ## Transforming Date Data Types
+SELECT current_date,
+  EXTRACT(year FROM current_date) AS year,
+  EXTRACT(month FROM current_date) AS month,
+  EXTRACT(day FROM current_date) AS day;
+
+SELECT current_date,
+  EXTRACT(y FROM current_date) AS year,
+  EXTRACT(mon FROM current_date) AS month,
+  EXTRACT(d FROM current_date) AS day;
+
+SELECT NOW(), TO_CHAR(NOW(), 'yyyymm') AS yearmonth;
+
+SELECT 
+  TO_CHAR(sales_transaction_date, 'yyyymm') yearmonth,
+  SUM(sales_amount) AS total_quarterly_sales
+FROM sales
+GROUP BY 1
+ORDER BY 1 DESC;
+
+-- ## Intervals
+SELECT 
+  TIMESTAMP '2025-03-01 00:00:00' – 
+    TIMESTAMP '2025-02-01 00:00:00' AS days_in_feb;
+
+SELECT 
+  TIMESTAMP '2025-03-06 00:00:00' + INTERVAL '7 days' 
+    AS new_date;
+
+SELECT DATE '2025-06-05' + 7 AS new_date;
+
+SELECT 
+  '2025-03-01'::DATE - '2025-02-01'::DATE 
+    AS days_in_feb;
+
+-- # Geospatial Data
+-- ## Latitude and Longitude
+SELECT latitude, longitude
+FROM customers
+WHERE latitude IS NOT NULL
+LIMIT 3;
+
+CREATE EXTENSION cube;
+CREATE EXTENSION earthdistance;
+
+SELECT POINT(longitude, latitude)
+FROM customers
+WHERE longitude IS NOT NULL
+LIMIT 3;
+
+SELECT point(-90, 38) <@> point(-91, 37) AS dist;
+
+
+

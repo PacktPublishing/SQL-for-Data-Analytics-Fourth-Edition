@@ -1,0 +1,21 @@
+-- Step 2
+SELECT 
+  first_name || ' ' || last_name as Name,
+  hire_date, 
+  EXTRACT(day FROM Current_Timestamp - hire_date) AS DaysServed
+FROM salespeople
+ORDER BY DaysServed DESC
+LIMIT 3;
+
+-- Step 3
+SELECT
+  model, 
+  CASE 
+    WHEN production_end_date IS NULL THEN 'Active'
+    ELSE 'Inactive'
+  END
+FROM products;
+
+-- Step 5
+SELECT * FROM sales
+WHERE COALESCE(NULLIF(channel, 'dealership'), dealership_id::TEXT) IS NULL;

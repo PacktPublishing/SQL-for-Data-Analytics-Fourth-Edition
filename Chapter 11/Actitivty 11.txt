@@ -1,0 +1,27 @@
+
+-- Use the customer_sales table and create a 
+-- searchable view with one record per customer. 
+-- This view should be keyed off the customer_id 
+-- column and searchable on everything related to 
+-- that customer: name, email address, phone 
+-- number, and purchased products. It is 
+-- acceptable to include other fields as well.
+CREATE TEMP VIEW customer_sales_info AS
+SELECT 
+  customer_json -> 'customer_id' customer_id,
+  customer_json -> 'first_name' first_name,
+  customer_json -> 'last_name' last_name,
+  customer_json -> 'email' email,
+  customer_json -> 'phone' phone,
+  customer_json
+FROM customer_sales;
+
+-- Query your new searchable view using the 
+-- Arlena keywords. There must be a filter 
+-- condition that this customer made some 
+-- purchases before (The sales array contains
+-- at least 1 record, which is record 0)
+SELECT *
+FROM customer_sales_info 
+WHERE first_name::TEXT LIKE '%Arlena%'
+  AND jsonb_path_exists(customer_json, '$.sales[0]');

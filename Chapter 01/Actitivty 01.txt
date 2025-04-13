@@ -1,0 +1,18 @@
+-- Create SQL statements to fetch the first 20 rows of each table in your sqlda database. 
+
+select * from countries limit 20；
+select * from customer_sales limit 20；
+select * from customer_survey limit 20；
+select * from customers limit 20；
+select * from dealerships limit 20；
+select * from emails limit 20；
+select * from products limit 20；
+select * from public_transportation_by_zip limit 20；
+select * from sales limit 20；
+select * from salespeople limit 20；
+
+-- Answer the following two questions: 
+-- Q: Which table is empty?
+-- A: The countries table is empty.
+-- Q: Which table has less than 20 records? 
+-- A: The products table has only 12 records.

@@ -1,0 +1,28 @@
+-- Step 2
+CREATE FUNCTION longest_serving_salespeople(dealership INT) 
+RETURNS numeric AS $serving$
+DECLARE salespersonid numeric;
+BEGIN
+  SELECT salesperson_id 
+  FROM salespeople 
+  INTO salespersonid
+  WHERE dealership_id = dealership
+  ORDER BY hire_date ASC
+  LIMIT 1;
+RETURN salespersonid;
+END; $serving$
+LANGUAGE PLPGSQL;
+
+-- Step 3
+SELECT longest_serving_salespeople(1);
+
+-- Step 4
+\df longest_serving_salespeople
+
+-- Step 5
+\sf longest_serving_salespeople
+
+-- Step 6
+DROP FUNCTION longest_serving_salespeople;
+
+

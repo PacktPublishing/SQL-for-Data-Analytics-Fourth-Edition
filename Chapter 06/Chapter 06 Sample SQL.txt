@@ -1,0 +1,90 @@
+-- # Updating Table Data
+UPDATE {table_name} SET 
+    {column_1} = {column_value_1},
+    {column_2} = {column_value_2},
+    …
+WHERE {conditional};
+
+UPDATE Products SET
+  base_msrp = 299.99 
+WHERE product_type = 'scooter' 
+AND year<2021;
+
+UPDATE Products SET
+  base_msrp = base_msrp * 0.9 
+WHERE product_type = 'scooter' 
+AND year < 2021;
+
+-- ## Cleaning Data
+DELETE FROM {table_name}  
+WHERE {condition};
+
+DELETE FROM products
+WHERE product_type = 'scooter';
+
+DELETE FROM products;
+
+TRUNCATE TABLE products;
+
+-- # Data Transformation Functions
+-- ## The CASE WHEN Function
+CASE 
+  WHEN condition1 THEN value1
+  WHEN condition2 THEN value2
+  …
+  ELSE else_value 
+END;
+
+SELECT 
+  CASE 
+    WHEN postal_code='33111' THEN 'Elite Customer'
+    WHEN postal_code='33124' THEN 'Premium Customer'
+    ELSE 'Standard Customer' 
+  END AS customer_type
+FROM customers;
+
+-- ## Functions for Different Data Types
+-- ### The Casting Function
+SELECT 'Year of ' || year::TEXT
+FROM products;
+
+-- ## The NULL Handling Functions
+-- ### The COALESCE Function
+SELECT 
+  first_name, last_name, 
+  COALESCE(phone, 'NO PHONE') as phone
+FROM customers;
+
+-- ### The NULLIF Function
+SELECT customer_id,
+        NULLIF(title, 'Honorable') as title,
+        first_name, last_name
+FROM customers c;
+
+-- # User Defined Functions
+CREATE FUNCTION some_function_name (function_arguments)
+RETURNS return_type AS $return_name$
+DECLARE return_name return_type;
+BEGIN
+ <function statements>;
+RETURN <some_value>;
+END; $return_name$
+LANGUAGE PLPGSQL;
+
+-- ## The \df and \sf commands
+\sf max_sale
+
+-- # Changing Table Definition
+ALTER TABLE {table_name} ADD COLUMN {column_name} {data_type};
+
+ALTER TABLE products ADD COLUMN weight INT;
+
+ALTER TABLE {table_name} RENAME COLUMN {column_name} TO {new_column_name};
+
+ALTER TABLE {table_name} RENAME TO {new_table_name};
+
+ALTER TABLE {table_name} DROP COLUMN {column_name};
+
+ALTER TABLE products DROP COLUMN weight;
+
+ALTER TABLE products ALTER COLUMN year TYPE decimal(10, 0);

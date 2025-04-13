@@ -1,0 +1,109 @@
+-- # Window Functions
+SELECT first_name, last_name, date_added
+FROM customers
+ORDER BY date_added;
+
+SELECT date_added, COUNT(*)
+FROM customers
+GROUP BY date_added
+ORDER BY date_added;
+
+-- ## The Basics of Window Functions
+SELECT {columns},
+  {window_func} OVER (
+    PARTITION BY {partition_key} 
+    ORDER BY {order_key}
+  )
+FROM {table};
+
+SELECT first_name, last_name, gender,
+  COUNT(*) OVER () as total_customers
+FROM customers;
+
+SELECT COUNT(*) FROM customers;
+
+SELECT first_name, last_name, gender,
+  COUNT(*) OVER (PARTITION BY gender)
+FROM customers;
+
+SELECT gender, COUNT(*) FROM customers GROUP BY 1;
+
+SELECT first_name, last_name, gender,
+  COUNT(*) OVER (ORDER BY customer_id)
+FROM customers;
+
+SELECT first_name, last_name, gender,
+  COUNT(*) OVER (
+    PARTITION BY gender 
+    ORDER BY customer_id
+  ) 
+FROM customers;
+
+-- # Advanced Window Definitions
+-- ## The WINDOW Keyword
+SELECT first_name, last_name, gender,
+  COUNT(*) 
+    OVER (
+      PARTITION BY gender ORDER BY customer_id
+    ) as total_customers,
+  SUM(CASE WHEN title IS NOT NULL THEN 1 ELSE 0 END) 
+    OVER (
+      PARTITION BY gender ORDER BY customer_id
+    ) as total_customers_title
+FROM customers;
+
+SELECT first_name, last_name, gender,
+  COUNT(*) 
+    OVER w as total_customers,
+  SUM(CASE WHEN title IS NOT NULL THEN 1 ELSE 0 END) 
+    OVER w as total_customers_title
+FROM customers
+WINDOW w AS (
+  PARTITION BY gender ORDER BY customer_id
+);
+
+-- ## Window Frame
+SELECT {columns},
+  {window_func} OVER (
+    PARTITION BY {partition_key} 
+    ORDER BY {order_key} 
+{rangeorrows} 
+  BETWEEN {frame_start} AND {frame_end}
+  )
+FROM {table1};
+
+WITH 
+  daily_sales as (
+    SELECT 
+      sales_transaction_date::DATE,
+      SUM(sales_amount) as total_sales
+    FROM sales
+    GROUP BY 1
+  ),
+  moving_average_calculation_7 AS (
+    SELECT 
+      sales_transaction_date, 
+      total_sales,
+      AVG(total_sales) OVER (
+        ORDER BY sales_transaction_date 
+        ROWS BETWEEN 6 PRECEDING and CURRENT ROW
+      ) AS sales_moving_average_7,
+      ROW_NUMBER() OVER (
+        ORDER BY sales_transaction_date
+      ) as row_number
+    FROM 
+      daily_sales
+    ORDER BY 1
+  )
+SELECT 
+  sales_transaction_date,
+  CASE 
+    WHEN row_number>=7 THEN sales_moving_average_7 
+    ELSE NULL 
+  END AS sales_moving_average_7
+FROM 
+  moving_average_calculation_7; 
+
+
+
+

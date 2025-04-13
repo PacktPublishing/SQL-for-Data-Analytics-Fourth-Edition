@@ -1,0 +1,28 @@
+-- The business users would like to calculate 
+-- the total number of sales the company has 
+-- made in each dealership.
+SELECT dealership_id, SUM(sales_amount)
+FROM sales
+GROUP BY dealership_id;
+
+-- They also want to calculate the total sales 
+-- amount in dollars for the state of New Jersey, 
+-- California and Florida. The sales of each 
+-- state should be reported separately.
+SELECT d.state, SUM(s.sales_amount)
+FROM sales s
+LEFT JOIN dealerships d 
+ON d.dealership_id=s.dealership_id
+WHERE d.state IN ('CA', 'FL', 'NJ')
+GROUP BY d.state;
+
+-- Finally, they would like to filter out the 
+-- state where the total sales is less than 
+-- $10MM ($10,000,000).
+SELECT d.state, SUM(s.sales_amount)
+FROM sales s
+LEFT JOIN dealerships d 
+ON d.dealership_id=s.dealership_id
+WHERE d.state IN ('CA', 'FL', 'NJ')
+GROUP BY d.state
+HAVING SUM(s.sales_amount) > 10000000;

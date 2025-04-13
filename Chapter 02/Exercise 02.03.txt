@@ -1,0 +1,9 @@
+-- Step 2
+DROP TABLE products_new;
+
+DROP TABLE IF EXISTS products_new_2;
+
+-- Step 3
+SELECT * FROM products_new;
+
+

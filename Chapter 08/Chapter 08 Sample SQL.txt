@@ -1,0 +1,122 @@
+-- # Aggregate Functions
+SELECT MAX(hire_date) FROM salespeople; 
+
+SELECT COUNT(*) FROM customers WHERE state='CA';
+
+SELECT COUNT(*)/2 FROM customers;
+
+SELECT SUM(base_msrp)/COUNT(*) AS avg_base_msrp 
+FROM Products;
+
+SELECT AVG(base_msrp) AS avg_base_msrp 
+FROM Products;
+
+SELECT COUNT(customer_id) FROM customers;
+
+SELECT COUNT(*) FROM customers;
+
+SELECT COUNT (DISTINCT {column1}) FROM {table1};
+
+SELECT COUNT(DISTINCT state) FROM customers;
+
+SELECT 
+  COUNT(customer_id)::numeric / COUNT(DISTINCT state)
+    AS Customer_per_state 
+FROM customers;
+
+SELECT
+  COUNT(customer_id) / COUNT(DISTINCT state) 
+    AS Customer_per_state 
+FROM customers;
+
+SELECT 
+  COUNT(customer_id) * 1.0 / COUNT(DISTINCT state) 
+FROM customers;
+
+--  # GROUP BY Clause
+SELECT DISTINCT state FROM customers;
+
+SELECT COUNT(*) FROM customers 
+WHERE state = '{state}';
+
+--  ## The GROUP BY Clause
+SELECT {KEY}, {AGGFUNC(column1)} 
+FROM {table1} 
+GROUP BY {KEY}
+
+SELECT state, COUNT(*) FROM customers GROUP BY state;
+
+SELECT TO_CHAR(date_added, 'YYYY'), COUNT(*) 
+FROM customers 
+GROUP BY TO_CHAR(date_added, 'YYYY');
+
+SELECT TO_CHAR(date_added, 'YYYY'), COUNT(*) 
+FROM customers
+GROUP BY 1;
+
+SELECT state, COUNT(*) 
+FROM customers 
+GROUP BY state 
+ORDER BY state;
+
+SELECT state, COUNT(*) 
+FROM customers 
+GROUP BY 1
+ORDER BY 1;
+
+SELECT state, COUNT(*) 
+FROM customers 
+GROUP BY state 
+ORDER BY COUNT(*) ASC;
+
+SELECT state, COUNT(*) 
+FROM customers 
+WHERE gender='M' 
+GROUP BY state 
+ORDER BY State;
+
+SELECT state, gender, COUNT(*) 
+FROM customers 
+GROUP BY state, gender 
+ORDER BY state, gender;
+
+--  ## Grouping Sets
+  SELECT state, NULL as gender, COUNT(*)
+  FROM customers
+  GROUP BY 1, 2
+UNION ALL
+  SELECT state, gender, COUNT(*)
+  FROM customers
+  GROUP BY 1, 2;
+
+SELECT state, gender, COUNT(*)
+FROM customers
+GROUP BY GROUPING SETS (
+  (state), (state, gender)
+);
+
+--  ## Ordered Set Aggregates
+SELECT {ordered_set_function} 
+WITHIN GROUP (ORDER BY {order_column})
+FROM {table};
+
+SELECT PERCENTILE_CONT(0.5) 
+WITHIN GROUP (ORDER BY base_msrp) AS median
+FROM products;
+
+--  # HAVING Clause
+SELECT state, COUNT(*)
+FROM customers
+WHERE COUNT(*)>=1000
+GROUP BY state;
+
+SELECT {KEY}, {AGGFUNC(column1)}
+FROM {table1}
+WHERE {Original_dataset_Conditions}
+GROUP BY {KEY}
+HAVING {ANY_AGGFUNC(any_column)_Conditions}
+
+
+
+
+

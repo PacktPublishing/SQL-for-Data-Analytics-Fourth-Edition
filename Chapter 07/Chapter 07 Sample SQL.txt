@@ -1,0 +1,148 @@
+-- # Derived Datasets
+SELECT dealership_id 
+FROM dealerships 
+WHERE state='CA';
+
+SELECT * FROM salespeople
+WHERE dealership_id in (2, 5);
+
+SELECT * FROM salespeople
+WHERE dealership_id in (
+  SELECT dealership_id 
+  FROM dealerships 
+  WHERE state='CA'
+);
+
+SELECT * FROM (
+  SELECT * FROM salespeople 
+  WHERE termination_date IS NULL
+) AS s
+WHERE dealership_id IN (
+  SELECT dealership_id FROM dealerships
+  WHERE dealerships.state = 'CA'
+);
+
+-- ## Common Table Expression (CTE)
+WITH s AS (
+  SELECT * FROM salespeople 
+  WHERE termination_date IS NULL
+)
+SELECT * FROM s
+WHERE dealership_id IN (
+  SELECT dealership_id FROM dealerships
+  WHERE dealerships.state = 'CA'
+);
+
+-- ## View
+CREATE VIEW active_salespeople AS (
+  SELECT * FROM salespeople 
+  WHERE termination_date IS NULL
+);
+
+SELECT * FROM active_salespeople
+WHERE dealership_id IN (
+  SELECT dealership_id FROM dealerships
+  WHERE dealerships.state = 'CA'
+);
+
+-- # Joining Tables
+-- ## Inner Joins
+SELECT {columns}
+FROM {table1}
+INNER JOIN {table2} 
+  ON {table1}.{common_key_1}={table2}.{common_key_2};
+
+SELECT *
+FROM salespeople
+INNER JOIN dealerships
+  ON salespeople.dealership_id = dealerships.dealership_id;
+
+SELECT *
+FROM salespeople
+INNER JOIN dealerships
+  ON salespeople.dealership_id = dealerships.dealership_id
+WHERE dealerships.state = 'CA';
+
+SELECT salespeople.*
+FROM salespeople
+INNER JOIN dealerships
+  ON dealerships.dealership_id = salespeople.dealership_id
+WHERE dealerships.state = 'CA'
+ORDER BY 1;
+
+SELECT s.*
+FROM salespeople s
+INNER JOIN dealerships d
+  ON d.dealership_id = s.dealership_id
+WHERE d.state = 'CA';
+
+SELECT s.*
+FROM salespeople AS s
+INNER JOIN dealerships AS d
+  ON d.dealership_id = s.dealership_id
+WHERE d.state = 'CA'
+ORDER BY 1;
+
+-- ## Outer Joins
+SELECT *
+FROM customers c
+LEFT OUTER JOIN emails e 
+  ON e.customer_id=c.customer_id
+ORDER BY c.customer_id
+LIMIT 1000;
+
+SELECT *
+FROM customers c
+LEFT OUTER JOIN emails e 
+  ON c.customer_id = e.customer_id
+WHERE e.customer_id IS NULL
+ORDER BY c.customer_id
+LIMIT 1000;
+
+SELECT *
+FROM emails e
+RIGHT OUTER JOIN customers c 
+  ON e.customer_id=c.customer_id
+ORDER BY c.customer_id
+LIMIT 1000;
+
+SELECT *
+FROM emails e
+FULL OUTER JOIN customers c
+  ON e.customer_id=c.customer_id;
+
+-- ## Cross Joins
+SELECT 
+  P1.product_id, p1.model, P2.product_id, p2.model
+FROM products p1 
+CROSS JOIN products p2;
+
+-- # Set Operations
+-- ## Unions
+SELECT street_address, city, state, postal_code
+FROM customers
+WHERE street_address IS NOT NULL;
+
+SELECT street_address, city, state, postal_code
+FROM dealerships
+WHERE street_address IS NOT NULL;
+
+  SELECT street_address, city, state, postal_code
+  FROM customers
+  WHERE street_address IS NOT NULL
+UNION
+  SELECT street_address, city, state, postal_code
+  FROM dealerships
+  WHERE street_address IS NOT NULL
+;
+
+SELECT * FROM products
+UNION
+SELECT * FROM products
+ORDER BY 1;
+
+SELECT * FROM products
+UNION ALL
+SELECT * FROM products
+ORDER BY 1;
+

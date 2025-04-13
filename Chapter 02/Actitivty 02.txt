@@ -1,0 +1,45 @@
+
+-- To ensure that this study will not impact the everyday 
+-- activities in the production system, they would like to 
+-- use a new table customers_copy which is a complete copy 
+-- of the existing customers table, instead of directly 
+-- running queries against the production customers table. 
+CREATE TABLE customers_copy AS (
+  SELECT * FROM customers
+);
+
+
+-- They also want to create a new table called 
+-- customer_segment, which contains the following 3 fields:
+-- customer_segment_id: An integer number that comes from 
+-- the source system.
+-- customer_segment_desc: A text field that contains up to 
+-- 100 characters of the segment name, such as “50 year 
+-- old male with wife, kids, and pets”.
+-- segment_creation_date: A date field indicating when the 
+-- segment was created.
+-- Please create this table 
+CREATE TABLE customer_segment (
+  customer_segment_id INTEGER,
+  customer_segment_desc VARCHAR(100),
+  segment_creation_date DATE
+);
+
+-- For now, the business user has only one sample segment 
+-- with ID 1. The segment name is “50 year old male with 
+-- wife, kids, and pets” and the creation date was 
+-- 01/01/2025. Please insert the sample record into the 
+-- table.
+INSERT INTO customer_segment 
+(customer_segment_id, customer_segment_desc, segment_creation_date) 
+VALUES
+(1, '50 year old male with wife, kids, and pets', '01/01/2025');
+
+-- Review the value in the customer_segment table
+SELECT * FROM customer_segment;
+
+-- After you finish all these tasks, please drop both 
+-- tables to save database storage.
+DROP TABLE customers_copy;
+DROP TABLE customer_segment;
+
