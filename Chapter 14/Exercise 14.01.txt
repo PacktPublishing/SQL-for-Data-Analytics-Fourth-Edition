@@ -1,2 +1,137 @@
 -- Step 2
 
+CREATE TABLE customer_sales_json (
+  customer_json JSONB
+);
+
+\COPY customer_sales_json FROM 'c:\Users\ds684\Downloads\customer_sales.txt'
+
+
+SELECT COUNT(*) FROM customer_sales;
+
+SELECT COUNT(DISTINCT customer_json->'customer_id') 
+FROM customer_sales_json;
+
+
+
+
+SELECT 
+  c.first_name, c.last_name, 
+  (csj.customer_json->'first_name')::TEXT new_first_name,
+  (csj.customer_json->'last_name')::TEXT new_last_name
+FROM customer_sales_json csj
+JOIN customers c
+  ON c.customer_id = (csj.customer_json->'customer_id')::integer;
+
+
+SELECT 
+  c.first_name, c.last_name, 
+  replace((csj.customer_json->'first_name')::TEXT, '"', '') new_first_name,
+  replace((csj.customer_json->'last_name')::TEXT, '"', '') new_last_name
+FROM customer_sales_json csj
+JOIN customers c
+  ON c.customer_id = (csj.customer_json->'customer_id')::integer
+WHERE c.first_name != (csj.customer_json->>'first_name')
+  OR c.last_name != (csj.customer_json->>'last_name');
+
+
+
+
+SELECT TO_TIMESTAMP((csj.customer_json->>'date_added'), 'YYYY-MM-DDXHH24:MI:SS') date_added
+FROM customer_sales_json csj;
+
+
+
+SELECT 
+  (csj.customer_json->'customer_id')::integer customer_id,
+  jsonb_array_elements(csj.customer_json->'sales') AS sales_record
+FROM customer_sales_json csj;
+
+
+
+CREATE TABLE customer_sales_flattened AS
+SELECT 
+  (csj.customer_json->'customer_id')::INTEGER customer_id,
+  (csj.customer_json->>'first_name') first_name,
+  (csj.customer_json->>'last_name') last_name,
+  (csj.customer_json->>'email') email,
+  (csj.customer_json->>'phone') phone,
+  (jsonb_array_elements(csj.customer_json->'sales')->'product_id')::INTEGER product_id,
+  (jsonb_array_elements(csj.customer_json->'sales')->>'product_name') product_name,
+  (jsonb_array_elements(csj.customer_json->'sales')->'sales_amount')::NUMERIC(10,2) sales_amount,
+  TO_TIMESTAMP((jsonb_array_elements(csj.customer_json->'sales')->>'sales_transaction_date'), 'YYYY-MM-DDXHH24:MI:SS') sales_date
+FROM customer_sales_json csj;
+
+
+
+
+CREATE TABLE customer_sales_dimension AS
+SELECT 
+  (csj.customer_json->'customer_id')::INTEGER customer_id,
+  (csj.customer_json->>'first_name') first_name,
+  (csj.customer_json->>'last_name') last_name,
+  (csj.customer_json->>'email') email,
+  (csj.customer_json->>'phone') phone
+FROM customer_sales_json csj;
+
+
+\d customer_sales_flattened 
+
+ALTER TABLE customer_sales_flattened DROP COLUMN first_name;
+ALTER TABLE customer_sales_flattened DROP COLUMN last_name;
+ALTER TABLE customer_sales_flattened DROP COLUMN email;
+ALTER TABLE customer_sales_flattened DROP COLUMN phone;
+ALTER TABLE customer_sales_flattened DROP COLUMN product_name;
+
+
+
+SELECT 
+  c.city, c.state,
+  p.product_type,
+  csj.sales_date,
+  SUM(csj.sales_amount) total_sales
+FROM customer_sales_flattened csj
+JOIN customers c
+  ON csj.customer_id = c.customer_id
+JOIN products p
+  ON csj.product_id = p.product_id
+GROUP BY 
+  c.city, c.state,
+  p.product_type,
+  csj.sales_date;
+
+
+CREATE VIEW customer_sales_top_sales AS
+SELECT 
+  c.city, c.state,
+  SUM(csj.sales_amount) total_sales
+FROM customer_sales_flattened csj
+JOIN customers c
+  ON csj.customer_id = c.customer_id
+JOIN products p
+  ON csj.product_id = p.product_id
+GROUP BY 
+  c.city, c.state
+ORDER BY 3 DESC
+LIMIT 10;
+
+SELECT * FROM customer_sales_top_sales 
+ORDER BY total_sales DESC;
+
+
+
+SELECT 
+  extract(dow from csj.sales_date) dow,
+  SUM(csj.sales_amount) total_sales
+FROM customer_sales_flattened csj
+GROUP BY 1
+ORDER BY 1;
+
+
+
+
+
+DROP VIEW customer_sales_top_sales;
+DROP TABLE customer_sales_flattened;
+DROP TABLE customer_sales_dimension;
+DROP TABLE customer_sales_json;
