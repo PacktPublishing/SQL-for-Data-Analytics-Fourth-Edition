@@ -1,0 +1,57 @@
+-- Step 2
+
+SELECT 
+  (csj.customer_json->'customer_id')::integer AS customer_id,
+  jsonb_array_elements(csj.customer_json->'sales') AS sales_record
+FROM customer_sales_json csj;
+
+
+
+CREATE TABLE customer_sales_flattened AS
+SELECT 
+  (csj.customer_json->'customer_id')::INTEGER AS customer_id,
+  (csj.customer_json->>'first_name') AS first_name,
+  (csj.customer_json->>'last_name') AS last_name,
+  (csj.customer_json->>'email') AS email,
+  (csj.customer_json->>'phone') AS phone,
+  (jsonb_array_elements(
+    csj.customer_json->'sales')->'product_id'
+  )::INTEGER AS product_id,
+  (jsonb_array_elements(
+    csj.customer_json->'sales')->>'product_name'
+  ) AS product_name,
+  (jsonb_array_elements(
+    csj.customer_json->'sales')->'sales_amount'
+  )::NUMERIC(10,2) AS sales_amount,
+  TO_TIMESTAMP(
+    (
+      jsonb_array_elements(
+        csj.customer_json->'sales'
+      )->>'sales_transaction_date'
+    ), 'YYYY-MM-DDXHH24:MI:SS'
+  ) AS sales_date
+FROM customer_sales_json csj;
+
+
+-- Stpe 3
+
+CREATE TABLE customer_sales_dimension AS
+SELECT 
+  (csj.customer_json->'customer_id')::INTEGER AS customer_id,
+  (csj.customer_json->>'first_name') AS first_name,
+  (csj.customer_json->>'last_name') AS last_name,
+  (csj.customer_json->>'email') AS email,
+  (csj.customer_json->>'phone') AS phone
+FROM customer_sales_json csj;
+
+
+-- Stpe 4
+
+\d customer_sales_flattened 
+
+ALTER TABLE customer_sales_flattened DROP COLUMN first_name;
+ALTER TABLE customer_sales_flattened DROP COLUMN last_name;
+ALTER TABLE customer_sales_flattened DROP COLUMN email;
+ALTER TABLE customer_sales_flattened DROP COLUMN phone;
+ALTER TABLE customer_sales_flattened DROP COLUMN product_name;
+
