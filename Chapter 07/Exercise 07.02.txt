@@ -1,6 +1,6 @@
 -- Step 2
 SELECT 
-  c.customer_id, c.first_name, c.last_name, c.phone
+  c.customer_id, c.first_name, c.last_name, p.model
 FROM sales s
 INNER JOIN customers c 
   ON c.customer_id=s.customer_id
