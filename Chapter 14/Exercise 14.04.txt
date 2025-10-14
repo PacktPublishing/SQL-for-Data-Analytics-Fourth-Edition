@@ -1,0 +1,45 @@
+-- Step 2
+
+SELECT 
+  c.city, c.state,
+  p.product_type,
+  csj.sales_date,
+  SUM(csj.sales_amount) AS total_sales
+FROM customer_sales_flattened csj
+JOIN customers c
+  ON csj.customer_id = c.customer_id
+JOIN products p
+  ON csj.product_id = p.product_id
+GROUP BY 
+  c.city, c.state,
+  p.product_type,
+  csj.sales_date;
+
+
+-- Step 3
+
+CREATE VIEW customer_sales_agg_sales AS
+SELECT
+  c.city, c.state,
+  p.product_type,
+  csj.sales_date,
+  SUM(csj.sales_amount) AS total_sales
+FROM customer_sales_flattened csj
+JOIN customers c
+  ON csj.customer_id = c.customer_id
+JOIN products p
+  ON csj.product_id = p.product_id
+GROUP BY
+  c.city, c.state,
+  p.product_type,
+  csj.sales_date;
+
+
+-- Step 4
+
+SELECT city, state, SUM(total_sales) total_sales
+FROM customer_sales_agg_sales
+GROUP BY 1, 2
+ORDER BY total_sales DESC
+LIMIT 10;
+

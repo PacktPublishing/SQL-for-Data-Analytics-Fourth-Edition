@@ -1,0 +1,35 @@
+-- Step 2
+
+SELECT 
+  TO_TIMESTAMP(
+    (csj.customer_json->>'date_added'), 
+    'YYYY-MM-DDXHH24:MI:SS'
+  ) AS date_added
+FROM customer_sales_json csj;
+
+
+-- Step 3
+
+SELECT COUNT(*) FROM customer_sales;
+
+SELECT COUNT(DISTINCT customer_json->'customer_id') 
+FROM customer_sales_json;
+
+
+-- Step 4
+
+SELECT *
+FROM customer_sales_json
+WHERE (customer_json->'customer_id')::integer NOT IN (
+  SELECT customer_id FROM customers c
+);
+
+SELECT 
+  c.first_name, c.last_name, 
+  replace((csj.customer_json->'first_name')::TEXT, '"', '') AS new_first_name,
+  replace((csj.customer_json->'last_name')::TEXT, '"', '') AS new_last_name
+FROM customer_sales_json csj
+JOIN customers c
+  ON c.customer_id = (csj.customer_json->'customer_id')::integer
+WHERE c.first_name != (csj.customer_json->>'first_name')
+  OR c.last_name != (csj.customer_json->>'last_name');
