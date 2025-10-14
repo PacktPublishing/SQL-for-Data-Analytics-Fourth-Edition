@@ -20,7 +20,6 @@ engine = create_engine(
 query = "SELECT * FROM customers"
 customer_data = pd.read_sql_query(query, engine) 
 customer_data.head()
-)
 
 # Step 4
 customer_per_state = \
