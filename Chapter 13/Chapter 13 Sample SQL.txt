@@ -1,0 +1,110 @@
+SELECT * FROM SALES ORDER BY RANDOM() LIMIT 100;
+
+SELECT ROUND(
+  CAST(AVG(number_of_customers) as numeric),0
+) AS avg_num_cust
+FROM top_cities_data;
+
+SELECT PERCENTILE_CONT(0.5) WITHIN GROUP
+  (ORDER BY number_of_customers) AS median
+FROM top_cities_data;
+
+SELECT COUNT(number_of_customers) AS frequency
+FROM top_cities_data
+ORDER BY frequency DESC
+LIMIT 1;
+
+SELECT
+  MAX(number_of_customers)
+  -MIN(number_of_customers)
+  AS Range
+FROM top_cities_data;
+
+SELECT
+  VAR_SAMP(number_of_customers) AS sample_variance,
+  STDDEV_SAMP(number_of_customers) AS sample_standard_deviation
+FROM top_cities_data;
+
+SELECT
+  COUNT(*) as cnt,
+  ROUND(CAST(AVG(sales_amount) AS numeric),0) AS avg_sales,
+  ROUND(CAST(STDDEV(sales_amount) AS numeric),0) AS stddev_sales,
+  PRODUCT_ID
+FROM SALES
+WHERE product_id IN (4,6,9,10,11)
+GROUP BY product_id
+ORDER BY product_id;
+
+SELECT
+  COUNT(*) as cnt,
+  ROUND(CAST(AVG(sales_amount) AS numeric),0) AS avg_sales,
+  ROUND(CAST(STDDEV(sales_amount) AS numeric),0) AS stddev_sales,
+  ROUND(CAST(AVG(sales_amount)-1.96* STDDEV(sales_amount)/SQRT(COUNT(*))
+    AS numeric),0) AS lower_CI,
+  ROUND(CAST(AVG(sales_amount)+1.96* STDDEV(sales_amount)/SQRT(COUNT(*))
+    AS numeric),0) AS upper_CI,
+  PRODUCT_ID
+FROM SALES
+WHERE product_id IN (4,6,9,10,11)
+GROUP BY product_id
+ORDER BY product_id;
+
+SELECT
+  ROUND(CAST(CORR(
+    public_transportation_pct,
+    public_transportation_population
+  ) AS numeric),4) AS correlation_coefficient
+FROM PUBLIC_TRANSPORTATION_BY_ZIP;
+
+SELECT
+  REGR_SLOPE(
+    public_transportation_pct,
+    public_transportation_population
+  ) AS beta_1,
+  REGR_INTERCEPT(
+    public_transportation_pct,
+    public_transportation_population
+  ) AS beta_0
+FROM PUBLIC_TRANSPORTATION_BY_ZIP;
+
+WITH regmodel AS (
+  SELECT
+    REGR_SLOPE(
+      public_transportation_pct,
+      public_transportation_population
+    ) AS beta_1,
+    REGR_INTERCEPT(
+      public_transportation_pct,
+      public_transportation_population
+    ) AS beta_0,
+    REGR_R2(public_transportation_pct  , public_transportation_population
+    )
+  FROM PUBLIC_TRANSPORTATION_BY_ZIP
+)
+SELECT
+  500 as population,
+  regmodel.beta_1 * 500 + regmodel.beta_0 AS prediction
+FROM regmodel;
+
+WITH regmodel AS (
+  SELECT
+    REGR_SLOPE(
+      public_transportation_pct,
+      public_transportation_population
+    ) AS beta_1,
+    REGR_INTERCEPT(
+      public_transportation_pct,
+      public_transportation_population
+    ) AS beta_0,
+    REGR_R2  (
+      public_transportation_pct,
+      public_transportation_population
+    ) AS r_squared
+  FROM PUBLIC_TRANSPORTATION_BY_ZIP
+)
+SELECT
+  500 as population,
+  regmodel.beta_1 * 500 + regmodel.beta_0 AS prediction,
+  regmodel.r_squared as r_squared
+FROM regmodel;
+
