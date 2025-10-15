@@ -1,2 +1,124 @@
--- Step 2
+-- step 0, bring data into the SQL server database:
+-- step 0.0: create the table and add columns as following:
+DROP TABLE IF EXISTS sparcs;
+
+/*CREATE TABLE sparcs (
+    health_service_area TEXT,
+    hospital_county TEXT,
+    operating_certificate_number TEXT,
+    facility_id TEXT,
+    facility_name TEXT,
+    age_group TEXT,
+    zip_code TEXT,
+    gender TEXT,
+    race TEXT,
+    ethnicity TEXT,
+    length_of_stay INTEGER,
+    type_of_admission TEXT,
+    patient_disposition TEXT,
+    discharge_year INTEGER,
+    ccs_diagnosis_code TEXT,
+    ccs_diagnosis_description TEXT,
+    ccs_procedure_code TEXT,
+    ccs_procedure_description TEXT,
+    apr_drg_code TEXT,
+    apr_drg_description TEXT,
+    apr_mdc_code TEXT,
+    apr_mdc_description TEXT,
+    apr_severity_of_illness_code TEXT,
+    apr_severity_of_illness_description TEXT,
+    apr_risk_of_mortality TEXT,
+    apr_medical_surgical_description TEXT,
+    payment_typology_1 TEXT,
+    payment_typology_2 TEXT,
+    payment_typology_3 TEXT,
+    birth_weight TEXT,
+    emergency_department_indicator TEXT,
+    total_charges NUMERIC,
+    total_costs NUMERIC
+);
+
+Once you created the table, you can bring in the data in two ways:
+1) use pgAdmin4 UI by right click the table you created to import Data, in the 
+options section, make sure you select " for quote;
+2) use the command line way" 
+\copy sparcs_2021 FROM 'file_path/file_name' WITH (FORMAT csv, HEADER true, ,QUOTE '"')
+*/
+
+-- Step 1: Point Estimation
+SELECT 'Step 1: Average Length of Stay' AS description;
+SELECT ROUND(AVG(length_of_stay)::NUMERIC, 1) AS avg_length_of_stay FROM sparcs;
+-- output: 5.7
+
+-- Step 2: Confidence Interval
+SELECT 'Step 2: Confidence Interval for Mean Stay' AS description;
+SELECT 
+  ROUND(AVG(length_of_stay)::NUMERIC, 1) AS mean,
+  ROUND(STDDEV(length_of_stay)::NUMERIC, 1) AS stddev,
+  COUNT(*) AS n,
+  ROUND(AVG(length_of_stay) - 1.96 * STDDEV(length_of_stay)/SQRT(COUNT(*))::NUMERIC, 1) AS lower_bound,
+  ROUND(AVG(length_of_stay) + 1.96 * STDDEV(length_of_stay)/SQRT(COUNT(*))::NUMERIC, 1) AS upper_bound
+FROM sparcs;
+-- mean | stddev |    n    | lower_bound | upper_bound
+-- ------+--------+---------+-------------+-------------
+--  5.7 |    7.8 | 2133685 |         5.7 |         5.7
+
+
+-- Step 3: Correlation Analysis
+SELECT 'Step 4: Correlation Between Stay and Charges' AS description;
+SELECT ROUND(CORR(length_of_stay, total_charges)::NUMERIC, 3) AS correlation FROM sparcs;
+-- output: 0.680
+
+-- Step 4: Simple Linear Regression
+SELECT 'Step 5: Predict Charges from Stay' AS description;
+SELECT 
+  ROUND(REGR_SLOPE(total_charges, length_of_stay)::NUMERIC, 2) AS slope,
+  ROUND(REGR_INTERCEPT(total_charges, length_of_stay)::NUMERIC, 2) AS intercept,
+  ROUND(REGR_R2(total_charges, length_of_stay)::NUMERIC, 3) AS r_squared
+FROM sparcs;
+--   slope   | intercept | r_squared
+--  ----------+-----------+-----------
+-- 11083.61 |   8622.10 |     0.462
+
+
+-- Step 5: Hypothesis Testing
+SELECT 'Step 3: Gender Comparison of Stay' AS description;
+WITH gender_stats AS (
+  SELECT 
+    gender,
+    ROUND(AVG(length_of_stay)::NUMERIC, 1) AS avg_stay,
+    ROUND(STDDEV(length_of_stay)::NUMERIC, 1) AS stddev,
+    COUNT(*) AS n
+  FROM sparcs
+  WHERE gender IN ('M', 'F')
+  GROUP BY gender
+)
+SELECT * FROM gender_stats;
+--gender | avg_stay | stddev |    n
+----------+----------+--------+---------
+-- F      |      5.2 |    7.2 | 1163068
+-- M      |      6.2 |    8.5 |  970457
+
+/*
+Hypothesis Test: Two-Sample t-Test
+
+Goal: Compare whether the average hospital stay differs significantly between female and male patients.
+
+Null Hypothesis (H₀): μ₁ = μ₂ → No difference in average stay
+Alternative Hypothesis (H₁): μ₁ ≠ μ₂ → There is a difference
+We use Welch’s t-test due to unequal variances and large sample sizes.
+The test statistic is computed as using results from step 5:
+SE = sqrt((std_f^2 / n_f) + (std_m^2 / n_m)) = 0.0109
+t = (mean_f - mean_m) / SE  ≈ -91.74
+subscript f and m represents male and female respectively.
+Degrees of freedom are approximated using Welch’s formula.
+With large n, we use the standard normal distribution for decision-making.
+The Decision Rule:
+	Significance level (alpha): 0.05
+	Critical value (two-tailed): ±1.96
+	Computed t-statistic: −91.74
+Since:
+|t∣=91.74>1.96m, we can reject the null hypothesis. The interpretation is there is a statistically significant difference in average hospital stay between female and male patients. 
+The difference is unlikely due to random chance.
+*/
 
